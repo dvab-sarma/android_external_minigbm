@@ -1,0 +1,16 @@
+name: "minigbm"
+description: ""
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 3
+    day: 12
+  }
+  homepage: "https://www.chromium.org/"
+  identifier {
+    type: "Git"
+    value: "https://chromium.googlesource.com/chromiumos/platform/minigbm/"
+    version: "40b28f098a29589b3f72de1ba6753d46a616c48b"
+  }
+}
