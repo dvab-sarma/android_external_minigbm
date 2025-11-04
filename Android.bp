@@ -81,6 +81,7 @@ msm_cflags = [
     "-DQCOM_DISABLE_COMPRESSED_NV12",
 ]
 arcvm_cflags = ["-DVIRTIO_GPU_NEXT"]
+rockchip_cflags = ["-DDRV_ROCKCHIP","-DHAS_DMABUF_SYSTEM_HEAP"]
 
 cc_defaults {
     name: "minigbm_defaults",
@@ -100,6 +101,7 @@ cc_defaults {
         "meson": meson_cflags,
         "msm": msm_cflags,
         "arcvm": arcvm_cflags,
+        "rockchip": rockchip_cflags,
         default: [],
     }),
 

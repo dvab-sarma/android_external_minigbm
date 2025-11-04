@@ -371,13 +371,7 @@ int gbm_mesa_bo_create(struct bo *bo, uint32_t width, uint32_t height, uint32_t 
 		size_align = 4096;
 	}
 
-	/* Raspberry Pi hardware decoder/encoder */
-	if (use_flags & (BO_USE_HW_VIDEO_DECODER | BO_USE_HW_VIDEO_ENCODER)) {
-		scanout_strong = true;
-		alloc_args.use_scanout = true;
-		alloc_args.width = ALIGN(alloc_args.width, 32);
-		size_align = 4096;
-	}
+
 
 	if (alloc_args.drm_format == 0) {
 		/* Always use linear for spoofed format allocations. */
@@ -430,6 +424,7 @@ int gbm_mesa_bo_create(struct bo *bo, uint32_t width, uint32_t height, uint32_t 
 
 	priv->map_stride = alloc_args.out_map_stride;
 	bo->meta.format_modifier = alloc_args.out_modifier;
+	// bo->meta.format_modifier = DRM_FORMAT_MOD_LINEAR;
 
 	bo->priv = priv;
 	priv->drv = drv;
