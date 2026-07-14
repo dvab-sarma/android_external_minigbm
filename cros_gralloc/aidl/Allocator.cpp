@@ -4,7 +4,10 @@
  * found in the LICENSE file.
  */
 
+#define LOG_TAG "minigbm_alloc"
+
 #include "Allocator.h"
+#include <inttypes.h>
 
 #include <aidl/android/hardware/graphics/allocator/AllocationError.h>
 #include <aidlcommonsupport/NativeHandle.h>
@@ -45,6 +48,7 @@ ndk::ScopedAStatus convertToCrosDescriptor(const BufferDescriptorInfo& info,
 
     for (const auto& option : info.additionalOptions) {
         if (option.name != STANDARD_METADATA_DATASPACE) {
+            ALOGE("allocate2: rejected unknown additionalOption: %s", option.name.c_str());
             return ToBinderStatus(AllocationError::UNSUPPORTED);
         }
         crosDescriptor.dataspace = static_cast<common::Dataspace>(option.value);
@@ -96,6 +100,11 @@ ndk::ScopedAStatus Allocator::allocate2(const BufferDescriptorInfo& descriptor, 
         return ToBinderStatus(AllocationError::NO_RESOURCES);
     }
 
+    ALOGI("allocate2: fmt=%d usage=0x%" PRIx64 " %dx%d opts=%zu",
+          (int)descriptor.format, (uint64_t)descriptor.usage,
+          descriptor.width, descriptor.height,
+          descriptor.additionalOptions.size());
+
     struct cros_gralloc_buffer_descriptor crosDescriptor = {};
 
     ndk::ScopedAStatus status = convertToCrosDescriptor(descriptor, crosDescriptor);
@@ -142,6 +151,9 @@ ndk::ScopedAStatus Allocator::allocateBuffer(const struct cros_gralloc_buffer_de
         ALOGE("Failed to allocate. Driver is uninitialized.\n");
         return ToBinderStatus(AllocationError::NO_RESOURCES);
     }
+
+    ALOGI("allocateBuffer: drm_fmt=0x%x use_flags=0x%" PRIx64 " %dx%d",
+          descriptor.drm_format, descriptor.use_flags, descriptor.width, descriptor.height);
 
     if (!mDriver->is_supported(&descriptor)) {
         const std::string drmFormatString =
@@ -200,6 +212,8 @@ ndk::ScopedAStatus Allocator::isSupported(const BufferDescriptorInfo& descriptor
 ndk::ScopedAStatus Allocator::getIMapperLibrarySuffix(std::string* outResult) {
 #if defined(GBM_MESA)
     *outResult = "minigbm_gbm_mesa";
+#elif defined(DRV_ROCKCHIP_VOP2)
+    *outResult = "minigbm_rockchip";
 #else
     *outResult = "minigbm";
 #endif

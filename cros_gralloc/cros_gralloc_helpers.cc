@@ -25,6 +25,7 @@
 #define HAL_PIXEL_FORMAT_R16_UINT 57
 #define HAL_PIXEL_FORMAT_R16G16_UINT 58
 #define HAL_PIXEL_FORMAT_RGBA_10101010 59
+#define HAL_PIXEL_FORMAT_YCBCR_P210 0x3c
 
 
 uint32_t cros_gralloc_convert_format(int format)
@@ -102,6 +103,8 @@ uint32_t cros_gralloc_convert_format(int format)
 	case HAL_PIXEL_FORMAT_RGBA_10101010:
 		return DRM_FORMAT_AXBXGXRX106106106106;
 #endif
+	case HAL_PIXEL_FORMAT_YCBCR_P210:
+		return DRM_FORMAT_P210;
 	}
 
 	return DRM_FORMAT_NONE;

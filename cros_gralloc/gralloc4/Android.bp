@@ -70,6 +70,21 @@ cc_library {
     ],
 }
 
+cc_library {
+    name: "libminigbm_gralloc4_utils_rockchip",
+    defaults: ["minigbm_cros_gralloc_defaults"],
+    vendor: true,
+    srcs: [
+        "CrosGralloc4Utils.cc",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.mapper@4.0",
+        "libgralloctypes",
+        "libhidlbase",
+        "libminigbm_gralloc_rockchip",
+    ],
+}
+
 cc_defaults {
     name: "minigbm_gralloc4_common_defaults",
     defaults: ["minigbm_cros_gralloc_defaults"],

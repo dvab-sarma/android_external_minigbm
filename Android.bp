@@ -324,3 +324,11 @@ cc_library_shared {
     defaults: ["minigbm_cros_gralloc0_defaults"],
     shared_libs: ["libminigbm_gralloc_gbm_mesa"],
 }
+
+// Exposes rockchip_vop2.c (mainline VOP2 backend) as a named filegroup so
+// that out-of-tree build targets can include it alongside minigbm_core_files
+// without touching the core file list.
+filegroup {
+    name: "minigbm_rockchip_vop2_files",
+    srcs: ["rockchip_vop2.c"],
+}

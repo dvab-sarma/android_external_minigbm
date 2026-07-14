@@ -1,0 +1,7 @@
+service vendor.graphics.allocator.rockchip /vendor/bin/hw/android.hardware.graphics.allocator-service.minigbm_rockchip
+    class hal animation
+    user system
+    group graphics drmrpc
+    capabilities SYS_NICE
+    onrestart restart surfaceflinger
+    task_profiles ServiceCapacityLow

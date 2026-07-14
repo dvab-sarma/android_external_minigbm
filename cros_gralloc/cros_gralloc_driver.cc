@@ -7,6 +7,7 @@
 #include "cros_gralloc_driver.h"
 
 #include <cstdlib>
+#include <inttypes.h>
 #include <cutils/properties.h>
 #include <fcntl.h>
 #include <hardware/gralloc.h>
@@ -156,7 +157,7 @@ static struct driver *init_try_nodes()
 
 static struct driver *init_try_nodes()
 {
-	return drv_create(-1);
+	return drv_create(-1, NULL);
 }
 
 #endif
@@ -211,6 +212,10 @@ bool cros_gralloc_driver::get_resolved_format_and_use_flags(
 	drv_resolve_format_and_use_flags(drv_.get(), descriptor->drm_format, descriptor->use_flags,
 					 &resolved_format, &resolved_use_flags);
 
+	drv_logi("get_resolved: drm_fmt=0x%x→0x%x use_flags=0x%" PRIx64 "→0x%" PRIx64 "\n",
+		 descriptor->drm_format, resolved_format,
+		 descriptor->use_flags, resolved_use_flags);
+
 	combo = drv_get_combination(drv_.get(), resolved_format, resolved_use_flags);
 	if (!combo && (descriptor->droid_usage & GRALLOC_USAGE_HW_VIDEO_ENCODER) &&
 	    descriptor->droid_format != HAL_PIXEL_FORMAT_YCbCr_420_888) {
@@ -226,8 +231,11 @@ bool cros_gralloc_driver::get_resolved_format_and_use_flags(
 		resolved_use_flags |= BO_USE_LINEAR;
 		combo = drv_get_combination(drv_.get(), resolved_format, resolved_use_flags);
 	}
-	if (!combo)
+	if (!combo) {
+		drv_logi("get_resolved: NO COMBO for fmt=0x%x flags=0x%" PRIx64 "\n",
+			 resolved_format, resolved_use_flags);
 		return false;
+	}
 
 	*out_format = resolved_format;
 	*out_use_flags = resolved_use_flags;

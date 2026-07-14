@@ -61,7 +61,7 @@ cc_binary {
         "-DGBM_MESA",
     ],
     shared_libs: [
-        "android.hardware.graphics.allocator-V2-ndk",
+        "android.hardware.graphics.allocator-V3-ndk",
         "android.hardware.graphics.mapper@4.0",
         "libbase",
         "libbinder_ndk",
@@ -115,6 +115,101 @@ prebuilt_etc {
     src: ":gen-android.hardware.graphics.allocator.minigbm_gbm_mesa.rc",
     installable: false,
 }
+
+// ---- Rockchip VOP2 (mainline kernel 6.x+) --------------------------------
+
+// Core gralloc library compiled with the VOP2 dumb-buffer backend.
+// Sources = standard minigbm core + the mainline rockchip driver file.
+cc_library_shared {
+    name: "libminigbm_gralloc_rockchip",
+    defaults: ["minigbm_cros_gralloc_defaults"],
+    srcs: [
+        ":minigbm_core_files",
+        ":minigbm_gralloc_common_files",
+        ":minigbm_rockchip_vop2_files",
+    ],
+    cflags: [
+        "-DDRV_ROCKCHIP_VOP2",
+        "-DHAS_DMABUF_SYSTEM_HEAP",
+    ],
+}
+
+cc_binary {
+    name: "android.hardware.graphics.allocator-service.minigbm_rockchip",
+    defaults: ["minigbm_cros_gralloc_defaults"],
+    relative_install_path: "hw",
+    vendor: true,
+    cflags: ["-DDRV_ROCKCHIP_VOP2"],
+    shared_libs: [
+        "android.hardware.graphics.allocator-V3-ndk",
+        "android.hardware.graphics.mapper@4.0",
+        "libbase",
+        "libbinder_ndk",
+        "libgralloctypes",
+        "libhidlbase",
+        "liblog",
+        "libminigbm_gralloc4_utils_rockchip",
+        "libminigbm_gralloc_rockchip",
+    ],
+    static_libs: ["libaidlcommonsupport"],
+    srcs: [
+        "Allocator.cpp",
+        "Main.cpp",
+    ],
+}
+
+filegroup {
+    name: "allocator.minigbm_rockchip.rc",
+    srcs: ["allocator.minigbm_rockchip.rc"],
+}
+
+linker_config {
+    name: "android.hardware.graphics.allocator.minigbm_rockchip-linker-config",
+    src: "apex_linkerconfig.json",
+    installable: false,
+}
+
+genrule {
+    name: "gen-android.hardware.graphics.allocator.minigbm_rockchip.rc",
+    srcs: [":allocator.minigbm_rockchip.rc"],
+    out: ["android.hardware.graphics.allocator-service.minigbm_rockchip.rc"],
+    cmd: "sed -E 's%/vendor/bin/%/apex/com.android.hardware.graphics.allocator.minigbm_rockchip/bin/%' $(in) > $(out)",
+}
+
+prebuilt_etc {
+    name: "android.hardware.graphics.allocator.minigbm_rockchip.rc",
+    src: ":gen-android.hardware.graphics.allocator.minigbm_rockchip.rc",
+    installable: false,
+}
+
+apex {
+    name: "com.android.hardware.graphics.allocator.minigbm_rockchip",
+    manifest: "apex_manifest_rockchip.json",
+    file_contexts: "apex_file_contexts_rockchip",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    updatable: false,
+    vendor: true,
+
+    binaries: [
+        "android.hardware.graphics.allocator-service.minigbm_rockchip",
+    ],
+    native_shared_libs: [
+        "mapper.minigbm_rockchip",
+    ],
+    prebuilts: [
+        "allocator.minigbm.xml",
+        "android.hardware.graphics.allocator.minigbm_rockchip-linker-config",
+        "android.hardware.graphics.allocator.minigbm_rockchip.rc",
+        "mapper.minigbm_rockchip.xml",
+    ],
+    overrides: [
+        "android.hardware.graphics.allocator-service.minigbm_rockchip",
+        "mapper.minigbm_rockchip",
+    ],
+}
+
+// ---- gbm_mesa APEX -------------------------------------------------------
 
 apex {
     name: "com.android.hardware.graphics.allocator.minigbm_gbm_mesa",

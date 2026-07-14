@@ -76,7 +76,7 @@ INIT_DUMB_DRIVER(synaptics)
 INIT_DUMB_DRIVER(udl)
 INIT_DUMB_DRIVER(vkms)
 
-#ifndef DRV_ROCKCHIP
+#if !defined(DRV_ROCKCHIP) && !defined(DRV_ROCKCHIP_VOP2)
 INIT_DUMB_DRIVER(rockchip)
 #endif
 #ifndef DRV_MEDIATEK
